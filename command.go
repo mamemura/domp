@@ -10,7 +10,7 @@ var GlobalFlags = []cli.Flag{
 	cli.StringFlag{
 		Name: "query,q",
 		Value: "text",
-		Usage: "query. can be used html/text/attr@xxx, seperator \"|\". e.g. --query \"html|attr@id\" , default \"text\".",
+		Usage: "query. can be used html/text/outerhtml/attrs/attr@xxx, seperator \"|\". e.g. --query \"html|attr@id\" , default \"text\".",
 	},
 	cli.StringFlag{
 		Name: "output,o",
