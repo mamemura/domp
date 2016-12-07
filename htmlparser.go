@@ -1,5 +1,9 @@
 package main
 
+// TODO
+// * メソッドを機能ごとに分ける。
+// * 自分の構造とかもみたいよね
+
 import (
 	"fmt"
 	"log"
@@ -11,20 +15,24 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/PuerkitoBio/goquery"
 	"golang.org/x/crypto/ssh/terminal"
+	"encoding/csv"
+	"encoding/json"
+	"bytes"
 )
 
 func CmdHtmlParser(c *cli.Context) error {
 	args := c.Args()
 	selector := args.Get(0)
 	queryStr := c.String("query")
-
+	outputStr := c.String("output")
 
 	queries := QueryParse(queryStr)
 
 	reader := Input()
 	doc := Parse(reader)
 	res := Analyze(selector, doc, queries)
-	Output(res)
+	strtagey := selectStrategy(outputStr)
+	Output(res, strtagey)
 	return nil
 }
 
@@ -49,12 +57,43 @@ func Input() io.Reader{
 	return os.Stdin
 }
 
-func Output(data [][]string) {
-	for _, values := range data {
-		fmt.Println(strings.Join(values, ","))
-	}
+func Output(data [][]string, conv Converter) {
+	fmt.Printf(conv(data))
 }
 
+type Converter func([][]string) string
+
+func TextConverter(data [][]string) string {
+	strs := make([]string, 0)
+	for _, values := range data {
+		strs = append(strs,strings.Join(values, " "))
+	}
+	return strings.Join(strs, "\n")
+}
+
+func CsvConverter(data [][]string) string {
+	var buf bytes.Buffer
+	w := csv.NewWriter(&buf)
+	w.WriteAll(data)
+	return buf.String()
+}
+
+func JsonConverter(data [][]string) string {
+	buf, _ :=json.Marshal(data)
+	return string(buf)
+}
+
+func selectStrategy(strategy string) Converter{
+	switch strategy {
+	case "csv":
+		return CsvConverter
+	case "json":
+		return JsonConverter
+	case "text": fallthrough;
+	default:
+		return TextConverter
+	}
+}
 
 func Analyze(selector string, doc *goquery.Document, queries []string) [][]string {
 	results := make([][]string, 0)
