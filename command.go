@@ -15,7 +15,7 @@ var GlobalFlags = []cli.Flag{
 	cli.StringFlag{
 		Name: "output,o",
 		Value: "text",
-		Usage: "output. can be used text/csv/json, e.g. --query \"csv\".",
+		Usage: "output. can be used text/csv/json, e.g. --output \"csv\".",
 	},
 }
 
