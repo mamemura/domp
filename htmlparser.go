@@ -1,9 +1,5 @@
 package main
 
-// TODO
-// * メソッドを機能ごとに分ける。
-// * 自分の構造とかもみたいよね
-
 import (
 	"fmt"
 	"log"
@@ -11,41 +7,36 @@ import (
 	"strings"
 	"syscall"
 	"io"
-	"regexp"
 	"github.com/codegangsta/cli"
 	"github.com/PuerkitoBio/goquery"
 	"golang.org/x/crypto/ssh/terminal"
-	"encoding/csv"
-	"encoding/json"
-	"bytes"
 )
 
 func CmdHtmlParser(c *cli.Context) error {
+	// 初期化
 	args := c.Args()
 	selector := args.Get(0)
 	queryStr := c.String("query")
 	outputStr := c.String("output")
 
-	queries := QueryParse(queryStr)
+	queries := QueryStrParse(queryStr)
 
 	reader := Input()
-	doc := Parse(reader)
+
+	doc := MakeDocument(reader)
+
 	res := Analyze(selector, doc, queries)
-	strtagey := selectStrategy(outputStr)
-	Output(res, strtagey)
+	conv := GetConverter(outputStr)
+
+	Output(res, conv)
+
 	return nil
 }
 
-func Parse(reader io.Reader) *goquery.Document {
+func MakeDocument(reader io.Reader) *goquery.Document {
 	doc, err := goquery.NewDocumentFromReader(reader)
 	ErrorLog(err)
 	return doc
-}
-
-func QueryParse(queryStr string) []string {
-	queryStr = strings.TrimSpace(queryStr)
-	queries := regexp.MustCompile(`\s*\|\s*`).Split(queryStr, -1)
-	return queries
 }
 
 func Input() io.Reader{
@@ -61,110 +52,16 @@ func Output(data [][]string, conv Converter) {
 	fmt.Printf(conv(data))
 }
 
-type Converter func([][]string) string
-
-func TextConverter(data [][]string) string {
-	strs := make([]string, 0)
-	for _, values := range data {
-		strs = append(strs,strings.Join(values, " "))
-	}
-	return strings.Join(strs, "\n")
-}
-
-func CsvConverter(data [][]string) string {
-	var buf bytes.Buffer
-	w := csv.NewWriter(&buf)
-	w.WriteAll(data)
-	return buf.String()
-}
-
-func JsonConverter(data [][]string) string {
-	buf, _ :=json.Marshal(data)
-	return string(buf)
-}
-
-func selectStrategy(strategy string) Converter{
-	switch strategy {
-	case "csv":
-		return CsvConverter
-	case "json":
-		return JsonConverter
-	case "text": fallthrough;
-	default:
-		return TextConverter
-	}
-}
-
-func Analyze(selector string, doc *goquery.Document, queries []string) [][]string {
+func Analyze(selector string, doc *goquery.Document, queries []*Query) [][]string {
 	results := make([][]string, 0)
 	doc.Find(selector).Each(func (idx int, sl *goquery.Selection) {
 		el := make([]string, 0)
 		for _, query := range queries {
-			switch {
-			case query == "html":
-				el = append(el, Html(sl))
-
-			case query == "outerhtml":
-				el = append(el, OuterHtml(sl))
-
-			case query == "nodename":
-				el = append(el, NodeName(sl))
-
-			case query == "attrs":
-				el = append(el, Attrs(sl))
-
-			case regexp.MustCompile("attr@.*").MatchString(query):
-				attrs := regexp.MustCompile(`\s*@\s*`).Split(query, 2)
-				el = append(el, Attr(attrs[1], sl))
-
-			case query == "text": fallthrough;
-			default:
-				el = append(el, Text(sl))
-			}
+			el = append(el, Method(query, sl))
 		}
 		results = append(results, el)
 	})
 	return results
-}
-
-func Html(selector *goquery.Selection) string{
-	html, err := selector.Html()
-	ErrorLog(err)
-	return strings.TrimSpace(html)
-}
-
-func OuterHtml(selector *goquery.Selection) string{
-	html, err := goquery.OuterHtml(selector)
-	ErrorLog(err)
-	return strings.TrimSpace(html)
-}
-
-func Text(selector *goquery.Selection) string{
-	text := selector.Text()
-	return strings.TrimSpace(text)
-}
-
-func Attrs(selector *goquery.Selection) string {
-	node := selector.Get(0)
-	var data []string
-	for _, attr := range node.Attr {
-		data = append(data, attr.Key + "=>" + attr.Val)
-	}
-	// node.Attr
-
-	return strings.TrimSpace(strings.Join(data, ","))
-}
-
-func Attr(attr string, selector *goquery.Selection) string {
-	value, exists := selector.Attr(attr)
-	if !exists {
-		value = ""
-	}
-	return strings.TrimSpace(value)
-}
-
-func NodeName(selector *goquery.Selection) string {
-	return goquery.NodeName(selector)
 }
 
 func ErrorLog( err error){
