@@ -101,14 +101,14 @@ func Analyze(selector string, doc *goquery.Document, queries []string) [][]strin
 		el := make([]string, 0)
 		for _, query := range queries {
 			switch {
-			case query == "text":
-				el = append(el, Text(sl))
+			case query == "html":
+				el = append(el, Html(sl))
 			case regexp.MustCompile("attr@.*").MatchString(query):
 				attrs := regexp.MustCompile(`\s*@\s*`).Split(query, 2)
 				el = append(el, Attr(attrs[1], sl))
-			case query == "html": fallthrough;
+			case query == "text": fallthrough;
 			default:
-				el = append(el, Html(sl))
+				el = append(el, Text(sl))
 			}
 		}
 		results = append(results, el)

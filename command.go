@@ -9,13 +9,13 @@ import (
 var GlobalFlags = []cli.Flag{
 	cli.StringFlag{
 		Name: "query,q",
-		Value: "html",
-		Usage: "query. useful html/text/attr@xxx, e.g. \"html|attr@id\" , default \"html\"",
+		Value: "text",
+		Usage: "query. can be used html/text/attr@xxx, seperator \"|\". e.g. --query \"html|attr@id\" , default \"text\".",
 	},
 	cli.StringFlag{
 		Name: "output,o",
-		Value: "csv",
-		Usage: "output. useful text/csv, default text (feature json) ",
+		Value: "text",
+		Usage: "output. can be used text/csv/json, e.g. --query \"csv\"  default text.",
 	},
 }
 
