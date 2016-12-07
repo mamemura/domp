@@ -8,9 +8,9 @@ import (
 
 var GlobalFlags = []cli.Flag{
 	cli.StringFlag{
-		Name: "output,o",
+		Name: "query,q",
 		Value: "html",
-		Usage: "output method. html/attr/text, default html",
+		Usage: "query. useful html/text/attr@xxx, e.g. \"html|attr@id\" , default \"html\"",
 	},
 }
 

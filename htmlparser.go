@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	_ "bufio"
 	"syscall"
 	"io"
 	"regexp"
@@ -17,11 +16,15 @@ import (
 func CmdHtmlParser(c *cli.Context) error {
 	args := c.Args()
 	selector := args.Get(0)
-	outputmode := c.String("output")
+	queryStr := c.String("query")
+
+
+	queries := QueryParse(queryStr)
 
 	reader := Input()
 	doc := Parse(reader)
-	Output(selector, doc, outputmode)
+	res := Analyze(selector, doc, queries)
+	Output(res)
 	return nil
 }
 
@@ -29,6 +32,12 @@ func Parse(reader io.Reader) *goquery.Document {
 	doc, err := goquery.NewDocumentFromReader(reader)
 	ErrorLog(err)
 	return doc
+}
+
+func QueryParse(queryStr string) []string {
+	queryStr = strings.TrimSpace(queryStr)
+	queries := regexp.MustCompile(`\s*\|\s*`).Split(queryStr, -1)
+	return queries
 }
 
 func Input() io.Reader{
@@ -40,39 +49,51 @@ func Input() io.Reader{
 	return os.Stdin
 }
 
-func Output(selector string, doc *goquery.Document, mode string)  {
-	doc.Find(selector).Each(func (idx int, doc *goquery.Selection) {
-		switch {
-		case mode == "text":
-			Text(doc)
-			break
-		case regexp.MustCompile("attr@.*").MatchString(mode):
-			attr := regexp.MustCompile(`\s*@\s*`).Split(mode, 2)
-			Attr(attr[1], doc)
-			break
-		case mode == "html":
-		default:
-			Html(doc)
-		}
-	})
+func Output(data [][]string) {
+	for _, values := range data {
+		fmt.Println(strings.Join(values, ","))
+	}
 }
 
-func Html(selector *goquery.Selection){
+
+func Analyze(selector string, doc *goquery.Document, queries []string) [][]string {
+	results := make([][]string, 0)
+	doc.Find(selector).Each(func (idx int, sl *goquery.Selection) {
+		el := make([]string, 0)
+		for _, query := range queries {
+			switch {
+			case query == "text":
+				el = append(el, Text(sl))
+			case regexp.MustCompile("attr@.*").MatchString(query):
+				attrs := regexp.MustCompile(`\s*@\s*`).Split(query, 2)
+				el = append(el, Attr(attrs[1], sl))
+			case query == "html": fallthrough;
+			default:
+				el = append(el, Html(sl))
+			}
+		}
+		results = append(results, el)
+	})
+	return results
+}
+
+func Html(selector *goquery.Selection) string{
 	html, err := selector.Html()
 	ErrorLog(err)
-	fmt.Println(html)
+	return strings.TrimSpace(html)
 }
 
-func Text(selector *goquery.Selection){
+func Text(selector *goquery.Selection) string{
 	text := selector.Text()
-	fmt.Println(text)
+	return strings.TrimSpace(text)
 }
 
-func Attr(attr string, selector *goquery.Selection){
+func Attr(attr string, selector *goquery.Selection) string {
 	value, exists := selector.Attr(attr)
-	if exists {
-		fmt.Println(value)
+	if !exists {
+		value = ""
 	}
+	return strings.TrimSpace(value)
 }
 
 func ErrorLog( err error){
