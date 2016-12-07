@@ -103,8 +103,10 @@ func Analyze(selector string, doc *goquery.Document, queries []string) [][]strin
 			switch {
 			case query == "html":
 				el = append(el, Html(sl))
+			case query == "outerhtml":
+				el = append(el, OuterHtml(sl))
 			case query == "nodename":
-				el = append(el, Attrs(sl))
+				el = append(el, NodeName(sl))
 			case regexp.MustCompile("attr@.*").MatchString(query):
 				attrs := regexp.MustCompile(`\s*@\s*`).Split(query, 2)
 				el = append(el, Attr(attrs[1], sl))
@@ -120,6 +122,12 @@ func Analyze(selector string, doc *goquery.Document, queries []string) [][]strin
 
 func Html(selector *goquery.Selection) string{
 	html, err := selector.Html()
+	ErrorLog(err)
+	return strings.TrimSpace(html)
+}
+
+func OuterHtml(selector *goquery.Selection) string{
+	html, err := goquery.OuterHtml(selector)
 	ErrorLog(err)
 	return strings.TrimSpace(html)
 }
