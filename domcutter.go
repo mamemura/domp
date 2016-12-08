@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func CmdHtmlParser(c *cli.Context) error {
+func CmdDomCutter(c *cli.Context) error {
 	// 初期化
 	args := c.Args()
 	selector := args.Get(0)

@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-
 	"github.com/codegangsta/cli"
 )
 
@@ -16,7 +15,7 @@ func main() {
 	app.Usage = ""
 
 	app.Flags = GlobalFlags
-	app.Action = CmdHtmlParser
+	app.Action = CmdDomCutter
 	app.CommandNotFound = CommandNotFound
 
 	app.Run(os.Args)
