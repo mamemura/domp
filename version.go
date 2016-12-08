@@ -1,4 +1,4 @@
 package main
 
-const Name string = "domcutter"
+const Name string = "domparser"
 const Version string = "0.1.0"

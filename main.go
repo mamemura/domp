@@ -15,7 +15,7 @@ func main() {
 	app.Usage = ""
 
 	app.Flags = GlobalFlags
-	app.Action = CmdDomCutter
+	app.Action = CmdDomParser
 	app.CommandNotFound = CommandNotFound
 
 	app.Run(os.Args)

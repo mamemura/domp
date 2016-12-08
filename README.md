@@ -6,10 +6,10 @@
 
 ## Usage
 
-domc [option] [selector]
+domp [option] [selector]
 
 ```bash
-$ curl www.example.com | domc '#id > .class a'
+$ curl www.example.com | domp '#id > .class a'
 ```
 
 ### Ootion
@@ -23,7 +23,7 @@ output format.
 default "text"
 
 ```bash
-$ curl www.example.com | domc -o csv '#id > .class a'
+$ curl www.example.com | domp -o csv '#id > .class a'
 ```
 
 
@@ -40,7 +40,7 @@ default "text"
 
 And can use multiple query. ( seperator is "|" )
 ```bash
-$ curl www.example.com | domc -q 'attr@alt|attr@src' -o csv 'img'
+$ curl www.example.com | domp -q 'attr@alt|attr@src' -o csv 'img'
 # image1,/img/1.jpg
 # image2,/img/2.jpg
 # ...
@@ -52,12 +52,12 @@ $ curl www.example.com | domc -q 'attr@alt|attr@src' -o csv 'img'
 To install, use `go get`:
 
 ```bash
-$ go get -d github.com/mamemura/domcutter
+$ go get -d github.com/mamemura/domparser
 ```
 
 ## Contribution
 
-1. Fork ([https://github.com/mamemura/domcutter/fork](https://github.com/mamemura/domcutter/fork))
+1. Fork ([https://github.com/mamemura/domparser/fork](https://github.com/mamemura/domparser/fork))
 1. Create a feature branch
 1. Commit your changes
 1. Rebase your local changes against the master branch
