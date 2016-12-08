@@ -51,12 +51,12 @@ $ curl www.example.com | domp -q 'attr@alt|attr@src' -o csv 'img'
 To install, use `go get`:
 
 ```bash
-$ go get -d github.com/mamemura/domparser
+$ go get -d github.com/muramako/domp
 ```
 
 ## Contribution
 
-1. Fork ([https://github.com/mamemura/domparser/fork](https://github.com/mamemura/domparser/fork))
+1. Fork ([https://github.com/muramako/domp/fork](https://github.com/muramako/domp/fork))
 1. Create a feature branch
 1. Commit your changes
 1. Rebase your local changes against the master branch
@@ -66,7 +66,7 @@ $ go get -d github.com/mamemura/domparser
 
 ## Author
 
-[mamemura](https://github.com/mamemura)
+[muramako](https://github.com/muramako)
 
 ## TODO
 * Write test.
