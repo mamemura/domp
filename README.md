@@ -1,8 +1,7 @@
-# htmlparser
-
-
+# DOMparser
 
 ## Description
+Can type for JQuery like because this tool is wrapping the "goquery".
 
 ## Usage
 
